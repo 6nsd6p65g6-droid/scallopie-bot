@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://6nsd6p65g6-droid.github.io/almeithaq/sitemap.xml
