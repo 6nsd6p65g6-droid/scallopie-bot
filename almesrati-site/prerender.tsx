@@ -1,7 +1,7 @@
 import { renderToString } from "react-dom/server";
 import { writeFileSync } from "node:fs";
 import { App } from "./src/App";
-import { branches, company, socials } from "./src/site-data";
+import { branches, company, intlNumber, phones, socials } from "./src/site-data";
 
 // رابط الموقع النهائي. غيّره عند نشر الموقع على عنوانه (مثل https://almesrati.github.io/ أو نطاق خاص).
 const SITE_URL = "https://almesrati.github.io/";
@@ -18,13 +18,14 @@ const jsonLd = JSON.stringify({
   image: SITE_URL + "og.jpg",
   description,
   ...(socials.length ? { sameAs: socials.map((s) => s.url) } : {}),
+  ...(phones.length ? { telephone: phones.map((p) => `+${intlNumber(p.number)}`) } : {}),
   ...(branches.length
     ? {
         department: branches.map((b) => ({
           "@type": "HomeGoodsStore",
           name: `${company.fullName}، ${b.name}`,
           address: { "@type": "PostalAddress", streetAddress: b.address, addressCountry: "LY" },
-          ...(b.phones.length ? { telephone: b.phones.map((p) => p.number.replace(/^0/, "+218")) } : {}),
+          ...(b.phones.length ? { telephone: b.phones.map((p) => `+${intlNumber(p.number)}`) } : {}),
           ...(b.mapUrl ? { hasMap: b.mapUrl } : {}),
         })),
       }

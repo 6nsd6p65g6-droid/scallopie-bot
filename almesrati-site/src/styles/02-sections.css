@@ -1288,6 +1288,108 @@
   height: 20px;
 }
 
+/* أرقام الشركة وصفحاتها */
+.ct {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 1.4rem;
+  max-width: 1000px;
+  margin: 1.4rem auto 0;
+}
+.br-grid + .ct {
+  margin-top: 1.4rem;
+}
+.ct-col {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+  padding: clamp(1.1rem, 2.6vw, 1.6rem);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--gold);
+  border-radius: var(--r);
+  background: var(--ivory);
+}
+.ct-col h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.35rem;
+  color: var(--navy);
+}
+.ct-col h3 svg {
+  width: 22px;
+  height: 22px;
+  color: var(--gold-deep);
+}
+.ct-phones {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ct-phone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.1rem 1rem;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+}
+.ct-num {
+  justify-self: start;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--navy);
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.ct-label {
+  grid-column: 1;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+}
+.ct-acts {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  gap: 0.4rem;
+}
+.ct-hours {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+.ct-hours svg {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  color: var(--gold-deep);
+}
+.ct-socs {
+  display: grid;
+  gap: 0.6rem;
+}
+@media (max-width: 479px) {
+  .ct-phone {
+    grid-template-columns: 1fr;
+  }
+  .ct-acts {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 0.5rem;
+  }
+  .ct-acts .btn {
+    flex: 1;
+  }
+}
+
 /* ---------- التذييل ---------- */
 .ft {
   padding: 3rem 0 2rem;

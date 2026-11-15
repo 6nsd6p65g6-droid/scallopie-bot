@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { branches, company, smsHref, telHref, waHref, type Branch } from "../../site-data";
+import { branches, company, phoneLabel, phones, smsHref, telHref, waHref, type Branch } from "../../site-data";
 import { IconCheck, IconClose, IconCopy, IconList, IconPhone, IconChat, IconSms, IconTrash, IconArrow } from "./icons";
 
-// قائمة طلب الزائر: يجمع فيها الأصناف والمساحات، ثم يتصل بالفرع أو ينسخ الطلب.
+// قائمة طلب الزائر: يجمع فيها الأصناف والمساحات، ثم يرسلها برسالة واتساب أو رسالة نصية، أو يتصل، أو ينسخ الطلب.
 export type RequestItem = { key: string; title: string; detail?: string; area?: string };
 
 type Ctx = {
@@ -149,12 +149,13 @@ async function copyText(text: string) {
 export function RequestDrawer() {
   const { items, open, setOpen, update, remove, clear, toast } = useRequest();
   const [notes, setNotes] = useState("");
-  // الفروع قد تكون فارغة إلى أن تُرسل الشركة بياناتها: عندها يبقى نسخ الطلب فقط.
+  // الفروع قد تكون فارغة إلى أن تُرسل الشركة عناوينها: عندها يُرسل الطلب إلى أرقام الشركة، وإن لم توجد أرقام يبقى نسخ الطلب.
   const [branchId, setBranchId] = useState(branches[0]?.id ?? "");
   const closeRef = useRef<HTMLButtonElement>(null);
   const lastFocus = useRef<HTMLElement | null>(null);
   const branch: Branch | undefined = branches.find((b) => b.id === branchId) ?? branches[0];
   const text = requestText(items, notes, branch?.name);
+  const contacts = branch ? branch.phones : phones;
 
   useEffect(() => {
     if (open) {
@@ -241,9 +242,9 @@ export function RequestDrawer() {
               <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="اللون المفضل، مكان الاستخدام، موعد التوريد..." />
             </label>
 
-            {branch ? (
+            {contacts.length > 0 ? (
               <>
-                {branches.length > 1 ? (
+                {branch && branches.length > 1 ? (
                   <fieldset className="dr-branch">
                     <legend>أرسل طلبك إلى</legend>
                     <div className="seg">
@@ -257,24 +258,28 @@ export function RequestDrawer() {
                   </fieldset>
                 ) : null}
 
-                <p className="dr-send-lead">اختر الموظف وأرسل له طلبك برسالة واتساب أو رسالة نصية، والطلب يُكتب في الرسالة جاهزاً. ويمكنك الاتصال به مباشرة.</p>
+                <p className="dr-send-lead">
+                  {contacts.some((p) => p.name)
+                    ? "اختر الموظف وأرسل له طلبك برسالة واتساب أو رسالة نصية، والطلب يُكتب في الرسالة جاهزاً. ويمكنك الاتصال به مباشرة."
+                    : "أرسل طلبك برسالة واتساب أو رسالة نصية، والطلب يُكتب في الرسالة جاهزاً. ويمكنك الاتصال بنا مباشرة."}
+                </p>
                 <div className="dr-contacts">
-                  {branch.phones.map((p) => (
+                  {contacts.map((p) => (
                     <div key={p.number} className="dr-contact">
                       <div className="dr-contact-who">
-                        <strong>{p.name}</strong>
+                        <strong>{phoneLabel(p)}</strong>
                         <span dir="ltr">{p.number}</span>
                       </div>
                       <div className="dr-contact-actions">
                         {p.whatsapp ? (
-                          <a className="btn btn-wa" href={waHref(p.number, text)} target="_blank" rel="noopener noreferrer" aria-label={`أرسل الطلب إلى ${p.name} عبر واتساب`}>
+                          <a className="btn btn-wa" href={waHref(p.number, text)} target="_blank" rel="noopener noreferrer" aria-label={`أرسل الطلب عبر واتساب إلى ${p.name ?? p.number}`}>
                             <IconChat /> واتساب
                           </a>
                         ) : null}
-                        <a className="btn btn-msg" href={smsHref(p.number, text)} aria-label={`أرسل الطلب إلى ${p.name} برسالة نصية`}>
+                        <a className="btn btn-msg" href={smsHref(p.number, text)} aria-label={`أرسل الطلب برسالة نصية إلى ${p.name ?? p.number}`}>
                           <IconSms /> رسالة
                         </a>
-                        <a className="btn btn-ghost" href={telHref(p.number)} aria-label={`اتصال بـ${p.name}: ${p.number}`}>
+                        <a className="btn btn-ghost" href={telHref(p.number)} aria-label={`اتصال: ${p.name ? `${p.name}، ` : ""}${p.number}`}>
                           <IconPhone /> اتصال
                         </a>
                       </div>
@@ -290,7 +295,7 @@ export function RequestDrawer() {
             )}
 
             <div className="dr-foot">
-              <button type="button" className={`btn ${branch ? "btn-ghost" : "btn-primary"}`} onClick={onCopy}>
+              <button type="button" className={`btn ${contacts.length > 0 ? "btn-ghost" : "btn-primary"}`} onClick={onCopy}>
                 <IconCopy /> نسخ الطلب
               </button>
               <button
@@ -305,7 +310,7 @@ export function RequestDrawer() {
               </button>
             </div>
             <p className="muted small">
-              {branch ? "بعد فتح واتساب أو الرسائل اضغط «إرسال». وإن لم يظهر النص، انسخ الطلب والصقه في الرسالة." : "انسخ الطلب وأرسله لنا في رسالة."}
+              {contacts.length > 0 ? "بعد فتح واتساب أو الرسائل اضغط «إرسال». وإن لم يظهر النص، انسخ الطلب والصقه في الرسالة." : "انسخ الطلب وأرسله لنا في رسالة."}
             </p>
           </div>
         )}

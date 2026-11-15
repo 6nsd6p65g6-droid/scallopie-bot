@@ -188,3 +188,8 @@ export const IconZoom = ({ className }: P) => (
     <path d="M16 16l4.5 4.5M11 8.5v5M8.5 11h5" />
   </svg>
 );
+export const IconHeart = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20z" />
+  </svg>
+);

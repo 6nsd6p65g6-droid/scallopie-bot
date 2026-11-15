@@ -6,12 +6,23 @@ export const company = {
   fullName: "المصراتي للسيراميك والبرسلين",
 };
 
-// ---------- التواصل (بانتظار بيانات الشركة) ----------
+// ---------- التواصل ----------
 // لا تُكتب هنا أي بيانات غير مؤكدة. الأقسام التي تعتمد عليها تعرض نفسها تلقائياً عند تعبئتها.
 export type SocialLink = { platform: string; handle: string; url: string };
-export const socials: SocialLink[] = [];
+// أرسلها المالك، وتأكدنا أن الرابطين يفتحان صفحتي الشركة.
+export const socials: SocialLink[] = [
+  { platform: "تيك توك", handle: "@almasrati92", url: "https://www.tiktok.com/@almasrati92" },
+  { platform: "فيسبوك", handle: "المصراتي للسيراميك", url: "https://www.facebook.com/share/1Tz4UJCwQS/" },
+];
 
-export type Phone = { name: string; number: string; whatsapp?: boolean };
+// الاسم اختياري: يُكتب عندما يرسله المالك.
+export type Phone = { name?: string; number: string; whatsapp?: boolean };
+// أرقام الشركة كما أرسلها المالك: الرقم الأول عليه واتساب.
+export const phones: Phone[] = [{ number: "0928106906", whatsapp: true }, { number: "0921111923" }];
+// وصف الرقم عندما لا يُعرف اسم الموظف.
+export const phoneLabel = (p: Phone) => p.name ?? (p.whatsapp ? "اتصال وواتساب" : "اتصال ورسائل");
+
+// الفروع: بانتظار العناوين وروابط الخرائط. عند إضافتها تظهر بطاقات الفروع ويُختار الفرع في قائمة الطلب.
 export type Branch = { id: string; name: string; address: string; phones: Phone[]; mapUrl?: string };
 export const branches: Branch[] = [];
 

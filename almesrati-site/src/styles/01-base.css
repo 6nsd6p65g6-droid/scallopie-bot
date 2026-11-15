@@ -493,6 +493,33 @@ p {
   height: 60px;
   margin-bottom: 0;
 }
+.hd-acts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* زر واتساب: محادثة مباشرة مع الشركة */
+.hd-wa {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #0f7f43;
+  color: #fff;
+  transition:
+    background 0.25s,
+    transform 0.25s var(--ease);
+}
+.hd-wa svg {
+  width: 22px;
+  height: 22px;
+}
+.hd-wa:hover {
+  background: #0b6836;
+  transform: scale(1.06);
+}
 .hd-req {
   display: inline-flex;
   align-items: center;
@@ -523,7 +550,8 @@ p {
   display: none;
 }
 @media (max-width: 1079px) {
-  .hd-word span {
+  .hd-word span,
+  .hd-req-label {
     display: none;
   }
 }
@@ -542,9 +570,20 @@ p {
     gap: 0.7rem;
     height: var(--hd);
   }
-  .hd-side-b,
-  .hd-nav {
+  .hd-nav,
+  .hd-req {
     display: none;
+  }
+  /* على الجوال يبقى من الجانب الأيسر زر واتساب فقط، في طرف الشريط */
+  .hd-side-b {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 1rem;
+    transform: translateY(-50%);
+  }
+  .hd-wa {
+    width: 40px;
+    height: 40px;
   }
   .hd-logo,
   .hd.is-scrolled .hd-logo {

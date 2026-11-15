@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { branches, company, socials, telHref, waHref, workHours } from "../../site-data";
+import { branches, company, phoneLabel, phones, socials, telHref, waHref, workHours } from "../../site-data";
 import { SecHead } from "./head";
-import { IconArrow, IconCalc, IconChat, IconClock, IconGrid, IconHome, IconList, IconPhone, IconPin, IconStack } from "./icons";
+import { IconArrow, IconCalc, IconChat, IconClock, IconGrid, IconHeart, IconHome, IconList, IconPhone, IconPin, IconStack } from "./icons";
 import { useRequest } from "./request";
 
 // روابط الشريط العلوي: ثلاثة على كل جانب من الشعار.
@@ -42,7 +42,11 @@ function useActiveSection() {
   return active;
 }
 
-// الشريط العلوي: الشعار في الوسط والروابط على جانبيه. على الجوال يبقى الشعار والاسم فقط، والتنقل من الشريط السفلي.
+// أول رقم عليه واتساب: للمحادثة السريعة من الشريط العلوي.
+const waPhone = [...phones, ...branches.flatMap((b) => b.phones)].find((p) => p.whatsapp);
+const greeting = `مرحباً، أستفسر عن أصناف ${company.fullName}`;
+
+// الشريط العلوي: الشعار في الوسط والروابط على جانبيه. على الجوال يبقى الشعار والاسم وزر واتساب، والتنقل من الشريط السفلي.
 export function Header() {
   const { items, setOpen, pulse } = useRequest();
   const [scrolled, setScrolled] = useState(false);
@@ -80,13 +84,20 @@ export function Header() {
           <nav className="hd-nav" aria-label="أدوات الموقع">
             {navEnd.map(link)}
           </nav>
-          <button type="button" className="hd-req" onClick={() => setOpen(true)} aria-label={`طلبي، ${items.length} عناصر`}>
-            <IconList />
-            <span>طلبي</span>
-            <span key={pulse} className={`badge ${items.length ? "is-on" : ""}`}>
-              {items.length}
-            </span>
-          </button>
+          <div className="hd-acts">
+            {waPhone ? (
+              <a className="hd-wa" href={waHref(waPhone.number, greeting)} target="_blank" rel="noopener noreferrer" aria-label={`راسلنا على واتساب: ${waPhone.number}`}>
+                <IconChat />
+              </a>
+            ) : null}
+            <button type="button" className="hd-req" onClick={() => setOpen(true)} aria-label={`طلبي، ${items.length} عناصر`}>
+              <IconList />
+              <span className="hd-req-label">طلبي</span>
+              <span key={pulse} className={`badge ${items.length ? "is-on" : ""}`}>
+                {items.length}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -161,13 +172,20 @@ export function Steps() {
 }
 
 export function Contact() {
-  const hasData = branches.length > 0 || socials.length > 0;
+  const hasBranches = branches.length > 0;
+  const hasData = hasBranches || phones.length > 0 || socials.length > 0;
+  const lead = hasBranches
+    ? "زرنا لتعاين الأصناف بنفسك، أو راسلنا على واتساب، أو اتصل بنا مباشرة."
+    : hasData
+      ? "راسلنا على واتساب أو اتصل بنا مباشرة، وتابع جديد الأصناف على صفحاتنا."
+      : undefined;
+
   return (
     <section className="sec sec-contact" id="contact">
       <div className="wrap">
-        <SecHead kicker="نسعد بزيارتك" title="تواصل معنا" lead={hasData ? "زرنا لتعاين الأصناف بنفسك، أو راسلنا على واتساب، أو اتصل بنا مباشرة." : undefined} />
+        <SecHead kicker={hasBranches ? "نسعد بزيارتك" : "نسعد بتواصلك"} title="تواصل معنا" lead={lead} />
 
-        {branches.length > 0 ? (
+        {hasBranches ? (
           <div className="br-grid">
             {branches.map((b, bi) => (
               <article key={b.id} className="br" data-reveal style={{ "--d": `${bi * 120}ms` } as CSSProperties}>
@@ -192,17 +210,17 @@ export function Contact() {
                 <ul className="br-phones">
                   {b.phones.map((p) => (
                     <li key={p.number}>
-                      <span className="br-name">{p.name}</span>
+                      <span className="br-name">{phoneLabel(p)}</span>
                       <span className="br-number" dir="ltr">
                         {p.number}
                       </span>
                       <span className="br-acts">
                         {p.whatsapp ? (
-                          <a className="icon-btn icon-btn-wa" href={waHref(p.number, `مرحباً، أستفسر عن أصناف ${company.fullName}`)} target="_blank" rel="noopener noreferrer" aria-label={`واتساب ${p.name}`}>
+                          <a className="icon-btn icon-btn-wa" href={waHref(p.number, greeting)} target="_blank" rel="noopener noreferrer" aria-label={`واتساب ${p.number}`}>
                             <IconChat />
                           </a>
                         ) : null}
-                        <a className="icon-btn icon-btn-call" href={telHref(p.number)} aria-label={`اتصال بـ${p.name}: ${p.number}`}>
+                        <a className="icon-btn icon-btn-call" href={telHref(p.number)} aria-label={`اتصال: ${p.number}`}>
                           <IconPhone />
                         </a>
                       </span>
@@ -214,19 +232,62 @@ export function Contact() {
           </div>
         ) : null}
 
-        {socials.length > 0 ? (
-          <div className="soc-grid">
-            {socials.map((s, i) => (
-              <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer" className="soc" data-reveal style={{ "--d": `${i * 90}ms` } as CSSProperties}>
-                <span className="soc-platform">{s.platform}</span>
-                <span className="soc-handle" dir={s.handle.startsWith("@") ? "ltr" : undefined}>
-                  {s.handle}
-                </span>
-                <span className="soc-go">
-                  <IconArrow />
-                </span>
-              </a>
-            ))}
+        {phones.length > 0 || socials.length > 0 ? (
+          <div className="ct">
+            {phones.length > 0 ? (
+              <div className="ct-col" data-reveal>
+                <h3>
+                  <IconPhone /> اتصل بنا
+                </h3>
+                <ul className="ct-phones">
+                  {phones.map((p) => (
+                    <li key={p.number} className="ct-phone">
+                      <span className="ct-num" dir="ltr">
+                        {p.number}
+                      </span>
+                      <span className="ct-label">{phoneLabel(p)}</span>
+                      <span className="ct-acts">
+                        {p.whatsapp ? (
+                          <a className="btn btn-sm btn-wa" href={waHref(p.number, greeting)} target="_blank" rel="noopener noreferrer" aria-label={`راسلنا على واتساب: ${p.number}`}>
+                            <IconChat /> واتساب
+                          </a>
+                        ) : null}
+                        <a className="btn btn-sm btn-primary" href={telHref(p.number)} aria-label={`اتصل بنا: ${p.number}`}>
+                          <IconPhone /> اتصال
+                        </a>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {workHours ? (
+                  <p className="ct-hours">
+                    <IconClock /> {workHours.days}، {workHours.time}
+                    {workHours.closed ? `، ${workHours.closed}` : ""}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {socials.length > 0 ? (
+              <div className="ct-col" data-reveal style={{ "--d": "120ms" } as CSSProperties}>
+                <h3>
+                  <IconHeart /> تابعنا
+                </h3>
+                <div className="ct-socs">
+                  {socials.map((so) => (
+                    <a key={so.url} href={so.url} target="_blank" rel="noopener noreferrer" className="soc">
+                      <span className="soc-platform">{so.platform}</span>
+                      <span className="soc-handle" dir={so.handle.startsWith("@") ? "ltr" : undefined}>
+                        {so.handle}
+                      </span>
+                      <span className="soc-go">
+                        <IconArrow />
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
 
