@@ -1,101 +1,130 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { branches, company, socials, telHref, waHref, workHours } from "../../site-data";
-import { IconArrow, IconChat, IconClock, IconClose, IconList, IconMenu, IconPhone, IconPin } from "./icons";
+import { SecHead } from "./head";
+import { IconArrow, IconCalc, IconChat, IconClock, IconGrid, IconHome, IconList, IconPhone, IconPin, IconStack } from "./icons";
 import { useRequest } from "./request";
 
-const navLinks = [
-  { href: "#videos", id: "videos", label: "الفيديو" },
-  { href: "#catalog", id: "catalog", label: "الأصناف" },
-  { href: "#calculator", id: "calculator", label: "حاسبة البلاط" },
-  { href: "#steps", id: "steps", label: "طريقة الطلب" },
-  { href: "#contact", id: "contact", label: "تواصل معنا" },
+// روابط الشريط العلوي: ثلاثة على كل جانب من الشعار.
+const navStart = [
+  { id: "looks", label: "التصاميم" },
+  { id: "samples", label: "العيّنات" },
+  { id: "videos", label: "الفيديو" },
 ];
+const navEnd = [
+  { id: "catalog", label: "الأصناف" },
+  { id: "calculator", label: "الحاسبة" },
+  { id: "contact", label: "تواصل معنا" },
+];
+const allLinks = [...navStart, ...navEnd];
+const sectionIds = ["looks", "samples", "videos", "catalog", "calculator", "steps", "contact"];
 
-function Brand() {
-  return (
-    <>
-      <img src="brand/logo-192.png" alt="" width={56} height={56} />
-      <span className="brand-text">
-        <strong>{company.name}</strong>
-        <span>{company.descriptor}</span>
-      </span>
-    </>
-  );
-}
-
-export function Header() {
-  const { items, setOpen, pulse } = useRequest();
-  const [scrolled, setScrolled] = useState(false);
-  const [menu, setMenu] = useState(false);
+// القسم الظاهر الآن في منتصف الشاشة، لتمييز رابطه.
+function useActiveSection() {
   const [active, setActive] = useState("");
-
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 40);
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
-  }, []);
-
-  useEffect(() => {
-    const sections = navLinks.map((l) => document.getElementById(l.id)).filter(Boolean) as HTMLElement[];
+    if (!("IntersectionObserver" in window)) return;
+    const els = sectionIds.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) if (e.isIntersecting) setActive(e.target.id);
       },
       { rootMargin: "-45% 0px -50% 0px" },
     );
-    sections.forEach((s) => io.observe(s));
-    return () => io.disconnect();
+    els.forEach((el) => io.observe(el));
+    const top = document.getElementById("top");
+    const ioTop = new IntersectionObserver(([e]) => e.isIntersecting && setActive(""), { rootMargin: "-45% 0px -50% 0px" });
+    if (top) ioTop.observe(top);
+    return () => {
+      io.disconnect();
+      ioTop.disconnect();
+    };
   }, []);
+  return active;
+}
+
+// الشريط العلوي: الشعار في الوسط والروابط على جانبيه. على الجوال يبقى الشعار والاسم فقط، والتنقل من الشريط السفلي.
+export function Header() {
+  const { items, setOpen, pulse } = useRequest();
+  const [scrolled, setScrolled] = useState(false);
+  const active = useActiveSection();
 
   useEffect(() => {
-    document.documentElement.classList.toggle("no-scroll", menu);
-    if (!menu) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [menu]);
+    const on = () => setScrolled(window.scrollY > 30);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
+
+  const link = (l: { id: string; label: string }) => (
+    <a key={l.id} href={`#${l.id}`} aria-current={active === l.id ? "true" : undefined}>
+      {l.label}
+    </a>
+  );
 
   return (
-    <header className={`hd ${scrolled ? "is-scrolled" : ""} ${menu ? "is-menu" : ""}`}>
+    <header className={`hd ${scrolled ? "is-scrolled" : ""}`}>
       <div className="wrap hd-in">
-        <a href="#top" className="brand" aria-label={company.fullName} onClick={() => setMenu(false)}>
-          <Brand />
+        <div className="hd-side hd-side-a">
+          <a href="#top" className="hd-word" aria-label={`${company.fullName}: أعلى الصفحة`}>
+            <strong>{company.name}</strong>
+            <span>{company.descriptor}</span>
+          </a>
+          <nav className="hd-nav" aria-label="أقسام الموقع">
+            {navStart.map(link)}
+          </nav>
+        </div>
+        <a href="#top" className="hd-logo" aria-label={`${company.fullName}: أعلى الصفحة`}>
+          <img src="brand/logo-192.png" alt="" width={192} height={192} />
         </a>
-        <nav className="hd-nav" aria-label="التنقل الرئيسي">
-          {navLinks.map((l) => (
-            <a key={l.id} href={l.href} aria-current={active === l.id ? "true" : undefined}>
-              {l.label}
-            </a>
-          ))}
-        </nav>
-        <div className="hd-actions">
+        <div className="hd-side hd-side-b">
+          <nav className="hd-nav" aria-label="أدوات الموقع">
+            {navEnd.map(link)}
+          </nav>
           <button type="button" className="hd-req" onClick={() => setOpen(true)} aria-label={`طلبي، ${items.length} عناصر`}>
             <IconList />
-            <span className="hd-req-label">طلبي</span>
+            <span>طلبي</span>
             <span key={pulse} className={`badge ${items.length ? "is-on" : ""}`}>
               {items.length}
             </span>
           </button>
-          <button type="button" className="hd-burger" aria-expanded={menu} aria-controls="mnav" aria-label="القائمة" onClick={() => setMenu((v) => !v)}>
-            {menu ? <IconClose /> : <IconMenu />}
-          </button>
         </div>
       </div>
-      <nav id="mnav" className="mnav" aria-label="قائمة الجوال" inert={!menu}>
-        {navLinks.map((l, i) => (
-          <a key={l.id} href={l.href} onClick={() => setMenu(false)} style={{ "--i": i } as CSSProperties}>
-            {l.label}
-            <IconArrow />
-          </a>
-        ))}
-      </nav>
     </header>
   );
 }
 
+// شريط الجوال السفلي: خمسة أزرار ثابتة تحت الإبهام بدل القائمة المخفية.
+const tabs = [
+  { id: "looks", label: "التصاميم", icon: <IconHome /> },
+  { id: "samples", label: "العيّنات", icon: <IconGrid /> },
+  { id: "catalog", label: "الأصناف", icon: <IconStack /> },
+  { id: "calculator", label: "الحاسبة", icon: <IconCalc /> },
+];
+
+export function TabBar() {
+  const { items, open, setOpen, pulse } = useRequest();
+  const active = useActiveSection();
+  return (
+    <nav className="tb" aria-label="التنقل السريع">
+      {tabs.map((t) => (
+        <a key={t.id} href={`#${t.id}`} className={active === t.id ? "is-on" : ""} aria-current={active === t.id ? "true" : undefined}>
+          {t.icon}
+          <span>{t.label}</span>
+        </a>
+      ))}
+      <button type="button" className={open ? "is-on" : ""} onClick={() => setOpen(true)} aria-label={`طلبي، ${items.length} عناصر`}>
+        <IconList />
+        <span>طلبي</span>
+        <span key={pulse} className={`badge ${items.length ? "is-on" : ""}`}>
+          {items.length}
+        </span>
+      </button>
+    </nav>
+  );
+}
+
 const steps = [
-  { title: "اختر أصنافك", text: "تصفح قائمة الأصناف أو شاهدها بالفيديو، وأضف ما يعجبك إلى «طلبي».", href: "#catalog", cta: "قائمة الأصناف" },
+  { title: "اختر ما يعجبك", text: "تصفح التصاميم وصور العيّنات الحقيقية، وأضف ما يعجبك إلى «طلبي» برقم تصميمه.", href: "#samples", cta: "صور العيّنات" },
   { title: "احسب الكمية", text: "أدخل مقاسات الغرفة أو الحمام أو الساحة، والحاسبة تعطيك عدد البلاط مع هامش الاحتياط.", href: "#calculator", cta: "حاسبة البلاط" },
   { title: "جهّز طلبك", text: "افتح «طلبي» فتجد الأصناف والكميات مكتوبة في رسالة واحدة جاهزة للإرسال.", href: "", cta: "افتح طلبي" },
 ];
@@ -105,10 +134,7 @@ export function Steps() {
   return (
     <section className="sec sec-steps" id="steps">
       <div className="wrap">
-        <div className="sec-head sec-head-center" data-reveal>
-          <span className="orn" aria-hidden="true" />
-          <h2 className="h2">اطلب في ثلاث خطوات</h2>
-        </div>
+        <SecHead kicker="من الصورة إلى بيتك" title="اطلب في ثلاث خطوات" />
         <ol className="steps">
           {steps.map((s, i) => (
             <li key={s.title} className="step" data-reveal style={{ "--d": `${i * 120}ms` } as CSSProperties}>
@@ -139,11 +165,7 @@ export function Contact() {
   return (
     <section className="sec sec-contact" id="contact">
       <div className="wrap">
-        <div className="sec-head sec-head-light" data-reveal>
-          <span className="orn" aria-hidden="true" />
-          <h2 className="h2">تواصل معنا</h2>
-          {hasData ? <p className="lead">زرنا لتعاين الأصناف بنفسك، أو راسلنا على واتساب، أو اتصل بنا مباشرة.</p> : null}
-        </div>
+        <SecHead kicker="نسعد بزيارتك" title="تواصل معنا" lead={hasData ? "زرنا لتعاين الأصناف بنفسك، أو راسلنا على واتساب، أو اتصل بنا مباشرة." : undefined} />
 
         {branches.length > 0 ? (
           <div className="br-grid">
@@ -223,17 +245,22 @@ export function Footer() {
   return (
     <footer className="ft">
       <div className="wrap ft-in">
-        <div className="brand brand-ft">
-          <Brand />
-        </div>
+        <a href="#top" className="ft-brand" aria-label={`${company.fullName}: أعلى الصفحة`}>
+          <img src="brand/logo-192.png" alt="" width={192} height={192} loading="lazy" />
+          <strong>{company.name}</strong>
+          <span>{company.descriptor}</span>
+        </a>
+        <span className="orn orn-gold" aria-hidden="true" />
         <nav className="ft-links" aria-label="روابط الموقع">
-          {navLinks.map((l) => (
-            <a key={l.id} href={l.href}>
+          {allLinks.map((l) => (
+            <a key={l.id} href={`#${l.id}`}>
               {l.label}
             </a>
           ))}
         </nav>
-        <p className="ft-copy">© {new Date().getFullYear()} {company.fullName}</p>
+        <p className="ft-copy">
+          © {new Date().getFullYear()} {company.fullName}
+        </p>
       </div>
     </footer>
   );

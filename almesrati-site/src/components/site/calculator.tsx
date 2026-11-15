@@ -1,7 +1,8 @@
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 // الحاسبة تعمل على الأصناف المستطيلة المعروف مقاسها فقط.
-import { originNames, rectProducts as products, productTitle, type RectProduct as Product, type Use } from "../../site-data";
+import { designsOf, originNames, rectProducts as products, productTitle, setForProduct, type RectProduct as Product, type Use } from "../../site-data";
 import { formatNumber, parseNumber, prefersReducedMotion } from "./fx";
+import { SecHead } from "./head";
 import { IconCube, IconFloor, IconNet, IconPlus, IconRotate, IconYard } from "./icons";
 import { useRequest } from "./request";
 
@@ -233,10 +234,11 @@ export function Calculator() {
   return (
     <section className="sec sec-calc" id="calculator">
       <div className="wrap">
-        <div className="sec-head sec-head-light" data-reveal>
-          <h2 className="h2">حاسبة البلاط</h2>
-          <p className="lead">اختر ما ستبلّطه: أرضية غرفة، أو حماماً بأرضيته وحيطانه، أو ساحة خارجية. أدخل المقاسات وشاهد المخطط والكمية التقريبية فوراً.</p>
-        </div>
+        <SecHead
+          kicker="قبل أن تطلب"
+          title="حاسبة البلاط"
+          lead="اختر ما ستبلّطه: أرضية غرفة، أو حماماً بأرضيته وحيطانه، أو ساحة خارجية. أدخل المقاسات وشاهد المخطط والكمية التقريبية فوراً."
+        />
 
         <div className="calc" data-reveal>
           <form className="calc-form" onSubmit={(e) => e.preventDefault()} noValidate>
@@ -499,6 +501,12 @@ function SizePicker({
   );
 }
 
+// صورة حقيقية لصنف الساحة إن كانت له عيّنات مصوّرة.
+const photoOf = (id: string) => {
+  const set = setForProduct(id);
+  return set ? designsOf(set.id)[0]?.tiny : undefined;
+};
+
 function YardPicker({ value, onPick }: { value: string; onPick: (id: string) => void }) {
   return (
     <fieldset className="calc-sizes">
@@ -509,7 +517,7 @@ function YardPicker({ value, onPick }: { value: string; onPick: (id: string) => 
           return (
             <label key={p.id} className={`calc-prod ${on ? "is-on" : ""}`}>
               <input type="radio" name="calc-yard-product" value={p.id} checked={on} onChange={() => onPick(p.id)} />
-              <span className="calc-prod-sw" data-look={p.look} aria-hidden="true" />
+              <span className="calc-prod-sw" data-look={p.look} style={photoOf(p.id) ? { backgroundImage: `url(${photoOf(p.id)})` } : undefined} aria-hidden="true" />
               <span className="calc-prod-txt">
                 <strong>{productTitle(p)}</strong>
                 <small>

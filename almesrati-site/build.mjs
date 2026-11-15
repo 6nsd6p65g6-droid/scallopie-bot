@@ -1,12 +1,20 @@
 // يبني الموقع في مجلد dist: صفحة جاهزة مسبقاً + ملف app.js للحركة + الصور والملفات الثابتة.
 import { build } from "esbuild";
 import { createHash } from "node:crypto";
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 rmSync("dist", { recursive: true, force: true });
 mkdirSync("dist", { recursive: true });
 cpSync("public", "dist", { recursive: true });
+
+// ملف التنسيق: أجزاء src/styles تُجمع بترتيب أسمائها في ملف واحد.
+const css = readdirSync("src/styles")
+  .filter((f) => f.endsWith(".css"))
+  .sort()
+  .map((f) => readFileSync(`src/styles/${f}`, "utf8"))
+  .join("\n");
+writeFileSync("dist/styles.css", css);
 
 const shared = { bundle: true, jsx: "automatic", logLevel: "warning" };
 

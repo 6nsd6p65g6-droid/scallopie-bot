@@ -149,3 +149,42 @@ export const IconDiamond = ({ className }: P) => (
     <path d="M12 3l9 9-9 9-9-9z" />
   </svg>
 );
+export const IconHome = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M3.5 11.5L12 4l8.5 7.5" />
+    <path d="M5.5 10v9.5h13V10" />
+    <path d="M10 19.5v-5h4v5" />
+  </svg>
+);
+export const IconCalc = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <rect x="5" y="3" width="14" height="18" rx="2" />
+    <path d="M8.5 7.5h7" />
+    <g fill="currentColor" stroke="none">
+      <circle cx="8.6" cy="12" r="1" />
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="15.4" cy="12" r="1" />
+      <circle cx="8.6" cy="16.2" r="1" />
+      <circle cx="12" cy="16.2" r="1" />
+      <circle cx="15.4" cy="16.2" r="1" />
+    </g>
+  </svg>
+);
+export const IconStack = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M12 3.5l8.5 4.5L12 12.5 3.5 8z" />
+    <path d="M3.5 12l8.5 4.5 8.5-4.5" />
+    <path d="M3.5 16l8.5 4.5 8.5-4.5" />
+  </svg>
+);
+export const IconPause = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M8.5 5.5v13M15.5 5.5v13" />
+  </svg>
+);
+export const IconZoom = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="M16 16l4.5 4.5M11 8.5v5M8.5 11h5" />
+  </svg>
+);

@@ -45,15 +45,8 @@ export const kinds: Kind[] = ["بورسلين", "سيراميك", "كوطو", "�
 export type Finish = "مطفي" | "نص لمعة" | "لمعة" | "دبل لمعة";
 export const finishOrder: Finish[] = ["مطفي", "نص لمعة", "لمعة", "دبل لمعة"];
 
-// خامة العيّنة الصغيرة بجانب الصنف (توضيحية، والتصاميم المتوفرة تُعرض في المعرض)
+// مظهر مبسّط للصنف، تستخدمه حاسبة البلاط لتلوين المخطط فقط.
 export type Look = "ivory" | "marble" | "kotto" | "pool" | "stone" | "wood" | "hex";
-export const lookTexture: Partial<Record<Look, string>> = {
-  marble: "assets/t-white120.jpg",
-  stone: "assets/t-concrete.jpg",
-  kotto: "assets/tex-kotto.jpg",
-  pool: "assets/tex-pool.jpg",
-  wood: "assets/tex-wood.jpg",
-};
 
 // مكان التركيب كما أوضح المالك. الأصناف بدون قيمة تُركّب للأرضيات.
 export type Use = "floor" | "wall" | "both";
@@ -70,7 +63,6 @@ export type Product = {
   w?: number; // العرض بالسنتيمتر
   h?: number; // الطول بالسنتيمتر
   look: Look;
-  swatch?: string; // صورة حقيقية للصنف تُعرض بدل الخامة التوضيحية
   finishes?: Finish[];
   note?: string;
   use?: Use;
@@ -83,7 +75,7 @@ export type RectProduct = Product & { size: string; w: number; h: number };
 export const isRect = (p: Product): p is RectProduct => p.shape !== "hex" && !!p.size && typeof p.w === "number" && typeof p.h === "number";
 
 export const products: Product[] = [
-  { id: "ly-ceramic-60", kind: "سيراميك", origin: "libya", size: "60×60 سم", w: 60, h: 60, look: "ivory", swatch: "assets/t-white.jpg", use: "floor", outdoor: true },
+  { id: "ly-ceramic-60", kind: "سيراميك", origin: "libya", size: "60×60 سم", w: 60, h: 60, look: "ivory", use: "floor", outdoor: true },
   { id: "ly-porcelain-120x60", kind: "بورسلين", origin: "libya", size: "120×60 سم", w: 120, h: 60, look: "marble", use: "both" },
   { id: "ly-wall-30x60", kind: "سيراميك حائطي", origin: "libya", size: "30×60 سم", w: 30, h: 60, look: "ivory", note: "مع ديكور 30×60", use: "wall" },
   { id: "ly-kotto-60", kind: "كوطو", origin: "libya", size: "60×60 سم", w: 60, h: 60, look: "kotto", note: "سمك 14 ملم", use: "floor", outdoor: true },
@@ -99,7 +91,6 @@ export const products: Product[] = [
     w: 120,
     h: 60,
     look: "marble",
-    swatch: "assets/t-grey120.jpg",
     finishes: ["لمعة", "مطفي", "نص لمعة", "دبل لمعة"],
     use: "both",
   },
@@ -111,7 +102,6 @@ export const products: Product[] = [
     w: 80,
     h: 80,
     look: "marble",
-    swatch: "assets/t-grey80.jpg",
     finishes: ["لمعة", "مطفي", "نص لمعة"],
   },
   { id: "in-porcelain-60", kind: "بورسلين", origin: "india", size: "60×60 سم", w: 60, h: 60, look: "stone", use: "floor", outdoor: true },
@@ -147,56 +137,105 @@ export const productName = (p: Product) => `${p.kind}${p.variant ? ` ${p.variant
 export const productTitle = (p: Product) => `${productName(p)}${p.size ? ` ${p.size}` : ""}`;
 
 // ---------- فيديوهات المعرض (صوّرها المالك في المعرض، وكل فيديو يعرض عدة تصاميم من صنف واحد) ----------
-export type VideoItem = {
-  id: string;
-  src: string;
-  poster: string;
-  w: number;
-  h: number;
-  seconds: number;
-  productId: string;
-  shots: string[]; // لقطات مقصوصة من الفيديو نفسه
-};
+export type VideoItem = { id: string; src: string; poster: string; w: number; h: number; seconds: number; productId: string };
 export const videos: VideoItem[] = [
-  {
-    id: "v1",
-    src: "video/v1.mp4",
-    poster: "video/v1.jpg",
-    w: 576,
-    h: 1024,
-    seconds: 21,
-    productId: "ly-ceramic-60",
-    shots: ["assets/t-white.jpg", "assets/t-vein.jpg", "assets/t-beige.jpg", "assets/t-terrazzo.jpg"],
-  },
-  {
-    id: "v2",
-    src: "video/v2.mp4",
-    poster: "video/v2.jpg",
-    w: 1024,
-    h: 576,
-    seconds: 32,
-    productId: "in-porcelain-120x60",
-    shots: ["assets/t-cream120.jpg", "assets/t-dark120.jpg", "assets/t-white120.jpg", "assets/t-grey120.jpg"],
-  },
-  {
-    id: "v3",
-    src: "video/v3.mp4",
-    poster: "video/v3.jpg",
-    w: 576,
-    h: 1024,
-    seconds: 23,
-    productId: "in-porcelain-80",
-    shots: ["assets/t-grey80.jpg", "assets/t-dark80.jpg", "assets/t-concrete.jpg"],
-  },
+  { id: "v1", src: "video/v1.mp4", poster: "video/v1.jpg", w: 576, h: 1024, seconds: 21, productId: "ly-ceramic-60" },
+  { id: "v2", src: "video/v2.mp4", poster: "video/v2.jpg", w: 1024, h: 576, seconds: 32, productId: "in-porcelain-120x60" },
+  { id: "v3", src: "video/v3.mp4", poster: "video/v3.jpg", w: 576, h: 1024, seconds: 23, productId: "in-porcelain-80" },
 ];
 export const videoForProduct = (productId: string) => videos.find((v) => v.productId === productId);
 
-// ---------- شعار الواجهة: معيَّن من أربع بلاطات كما في شعار الشركة، بخامات حقيقية من فيديوهات المعرض ----------
-// الترتيب: أعلى، يمين، يسار، أسفل. البلاطات الثلاث الأولى تفتح فيديو صنفها، والرابعة تفتح قائمة الأصناف.
-export type EmblemTile = { texture: string; videoId?: string };
-export const emblem: EmblemTile[] = [
-  { texture: "assets/t-vein.jpg", videoId: "v1" },
-  { texture: "assets/t-cream120.jpg", videoId: "v2" },
-  { texture: "assets/t-grey80.jpg", videoId: "v3" },
-  { texture: "assets/t-dark120.jpg" },
+// ---------- التصاميم الحقيقية ----------
+// صور أرسلها المالك من المعرض. عُدّلت زاويتها فقط لتظهر البلاطة مستقيمة، ولم تُغيَّر ألوانها.
+// وصف اللون مأخوذ من الصورة نفسها ليساعد على التمييز بين التصاميم.
+export type SetShape = "slab" | "square" | "wall";
+export type DesignSet = {
+  id: string;
+  productId: string;
+  label: string; // اسم التبويب
+  shape: SetShape; // نسبة الصورة: لوح 60×120، مربع، أو حائطي مع ديكوره
+  note?: string;
+  looks: string[]; // وصف كل تصميم بترتيب صوره
+};
+export const designSets: DesignSet[] = [
+  {
+    id: "p120",
+    productId: "in-porcelain-120x60",
+    label: "بورسلين هندي 120×60",
+    shape: "slab",
+    looks: [
+      "كريمي بعروق ذهبية",
+      "أبيض بعروق سوداء رفيعة",
+      "رمادي فاتح بعروق داكنة",
+      "رمادي رخامي منقّط",
+      "بيج فاتح",
+      "رمادي متوسط",
+      "رمادي فاتح بعروق رفيعة",
+      "أبيض بعروق رمادية",
+      "رمادي فاتح ناعم",
+      "بني داكن بعروق فاتحة",
+      "رمادي داكن بعروق",
+      "بني فاتح",
+    ],
+  },
+  {
+    id: "p80",
+    productId: "in-porcelain-80",
+    label: "بورسلين هندي 80×80",
+    shape: "square",
+    looks: ["رمادي بعروق بيضاء", "رمادي فاتح حجري", "رمادي حجري بعروق", "بيج إسمنتي", "بيج رمادي فاتح", "رمادي فاتح سادة"],
+  },
+  {
+    id: "c60",
+    productId: "ly-ceramic-60",
+    label: "سيراميك ليبي 60×60",
+    shape: "square",
+    looks: ["رمادي فاتح بعروق ناعمة", "رمادي فاتح بتموّجات", "بيج كريمي", "بيج بعروق", "رمادي حجري", "أبيض بعروق بيج"],
+  },
+  {
+    id: "w30",
+    productId: "ly-wall-30x60",
+    label: "حائطي ليبي 30×60",
+    shape: "wall",
+    note: "كل صورة تعرض البلاطة السادة ومعها الديكور المطابق لها.",
+    looks: ["أبيض رخامي بعروق سوداء مع ديكور هندسي بارز", "رمادي مع ديكور مربعات بارزة", "تيرازو رمادي مع ديكور مثلثات", "رمادي فاتح مع ديكور خطوط بارزة"],
+  },
 ];
+
+export type Design = {
+  id: string;
+  setId: string;
+  productId: string;
+  n: number; // رقم التصميم داخل مجموعته
+  look: string;
+  image: string; // الصورة الكبيرة
+  thumb: string; // صورة البطاقة
+  tiny: string; // صورة صغيرة لجدار الواجهة والقوائم
+};
+export const designs: Design[] = designSets.flatMap((s) =>
+  s.looks.map((look, i) => {
+    const id = `${s.id}-${String(i + 1).padStart(2, "0")}`;
+    return { id, setId: s.id, productId: s.productId, n: i + 1, look, image: `designs/${id}.jpg`, thumb: `designs/${id}-t.jpg`, tiny: `designs/${id}-w.jpg` };
+  }),
+);
+export const designById = (id: string) => designs.find((d) => d.id === id);
+export const setById = (id: string) => designSets.find((s) => s.id === id);
+export const setForProduct = (productId: string) => designSets.find((s) => s.productId === productId);
+export const designsOf = (setId: string) => designs.filter((d) => d.setId === setId);
+export const designLabel = (d: Design) => `تصميم ${d.n}`;
+
+// ---------- تصاميم البيوت والحمامات ----------
+// صور توضيحية صُمّمت بالحاسوب: كل صورة تُظهر أحد تصاميمنا الحقيقية بعد التركيب.
+export type SceneKind = "floor" | "bath";
+export const sceneKinds: Record<SceneKind, string> = { floor: "أرضيات البيت", bath: "الحمامات" };
+export type Scene = { id: string; kind: SceneKind; title: string; designId: string; surface: string };
+export const scenes: Scene[] = [
+  { id: "living", kind: "floor", title: "صالة الجلوس", designId: "p120-01", surface: "الأرضية" },
+  { id: "bath1", kind: "bath", title: "حمّام بالأبيض الرخامي", designId: "w30-01", surface: "الحيطان" },
+  { id: "majlis", kind: "floor", title: "المجلس", designId: "p120-02", surface: "الأرضية" },
+  { id: "bedroom", kind: "floor", title: "غرفة النوم", designId: "p80-01", surface: "الأرضية" },
+  { id: "bath2", kind: "bath", title: "حمّام بالتيرازو", designId: "w30-03", surface: "الحيطان" },
+  { id: "kitchen", kind: "floor", title: "المطبخ", designId: "c60-03", surface: "الأرضية" },
+  { id: "bath3", kind: "bath", title: "حمّام بالرمادي الفاتح", designId: "w30-04", surface: "الحيطان" },
+];
+export const sceneImage = (s: Scene) => ({ large: `looks/${s.id}.jpg`, medium: `looks/${s.id}-m.jpg`, thumb: `looks/${s.id}-t.jpg` });

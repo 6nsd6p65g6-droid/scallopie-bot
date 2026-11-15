@@ -6,7 +6,7 @@ import { branches, company, socials } from "./src/site-data";
 // رابط الموقع النهائي. غيّره عند نشر الموقع على عنوانه (مثل https://almesrati.github.io/ أو نطاق خاص).
 const SITE_URL = "https://almesrati.github.io/";
 const title = `${company.fullName} | سيراميك وبورسلين وكوطو ورخام`;
-const description = `${company.fullName}: سيراميك وبورسلين وكوطو ورخام من الصناعة الليبية والهندية والتركية والمصرية والتونسية. شاهد الأصناف بالفيديو من المعرض، احسب كمية البلاط، وجهّز طلبك.`;
+const description = `${company.fullName}: سيراميك وبورسلين وكوطو ورخام من الصناعة الليبية والهندية والتركية والمصرية والتونسية. شاهد تصاميم البيوت والحمامات وصور العيّنات الحقيقية من المعرض، احسب كمية البلاط، وجهّز طلبك.`;
 
 // بيانات منظمة لمحركات البحث: فقط ما هو مؤكد. العناوين والهواتف تضاف تلقائياً عند تعبئتها في site-data.
 const jsonLd = JSON.stringify({
@@ -39,7 +39,7 @@ const html = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <meta name="description" content="${description}">
-<meta name="theme-color" content="#0B1F33">
+<meta name="theme-color" content="#FFFDF8">
 <link rel="canonical" href="${SITE_URL}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${company.fullName}">

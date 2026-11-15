@@ -168,7 +168,7 @@ export function RequestDrawer() {
       return () => {
         window.removeEventListener("keydown", onKey);
         document.documentElement.classList.remove("no-scroll");
-        lastFocus.current?.focus?.();
+        lastFocus.current?.focus?.({ preventScroll: true });
       };
     }
   }, [open, setOpen]);
@@ -200,15 +200,15 @@ export function RequestDrawer() {
               <i />
             </div>
             <p>لم تضف أي صنف بعد.</p>
-            <p className="muted">أضف الأصناف التي تهمك من قائمة الأصناف أو من حاسبة البلاط، ثم جهّز طلبك.</p>
+            <p className="muted">أضف ما يعجبك من صور العيّنات أو قائمة الأصناف أو حاسبة البلاط، ثم جهّز طلبك.</p>
             <a
-              href="#catalog"
+              href="#samples"
               className="btn btn-primary"
               onClick={() => {
                 setOpen(false);
               }}
             >
-              تصفح الأصناف <IconArrow />
+              صور العيّنات <IconArrow />
             </a>
           </div>
         ) : (

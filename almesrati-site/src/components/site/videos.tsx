@@ -1,144 +1,154 @@
 import { useEffect, useRef, useState } from "react";
-import { isRect, originNames, originShort, outdoorLabel, productById, productName, useNames, videos } from "../../site-data";
+import { isRect, originNames, originShort, outdoorLabel, productById, productName, productTitle, setForProduct, useNames, videos } from "../../site-data";
+import { showSamples, useSiteEvent } from "./actions";
 import { openCalculator, requestItem } from "./catalog";
-import { IconCheck, IconPlay, IconPlus } from "./icons";
+import { SecHead } from "./head";
+import { IconCheck, IconChevron, IconClose, IconGrid, IconPlay, IconPlus } from "./icons";
 import { useRequest } from "./request";
 
-// صالة الفيديو: مشغّل واحد وقائمة بفيديوهات المعرض. كل فيديو مربوط بصنفه، ومنه يضاف للطلب أو تُحسب كميته.
+// فيديوهات المعرض: بطاقات مثل مقاطع الهاتف، والضغط على البطاقة يفتح المشغّل فوق الصفحة.
+// كل فيديو مربوط بصنفه، ومن المشغّل يُضاف الصنف للطلب أو تُحسب كميته أو تُفتح صوره.
 
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 
 export function Videos() {
-  const { add, has } = useRequest();
-  const [current, setCurrent] = useState(0);
-  const [started, setStarted] = useState(false);
-  // رقم يزيد مع كل طلب تشغيل، حتى يعمل التشغيل ولو طُلب الفيديو المعروض نفسه.
-  const [playRequest, setPlayRequest] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState<number | null>(null);
 
-  const pick = (i: number) => {
-    setCurrent(i);
-    setStarted(true);
-    setPlayRequest((n) => n + 1);
-  };
-
-  // فتح فيديو من خارج القسم (بلاطات الواجهة أو قائمة الأصناف).
-  useEffect(() => {
-    const onVideo = (e: Event) => {
-      const i = videos.findIndex((v) => v.id === (e as CustomEvent<string>).detail);
-      if (i >= 0) pick(i);
-    };
-    window.addEventListener("ms:video", onVideo);
-    return () => window.removeEventListener("ms:video", onVideo);
-  }, []);
-
-  // التشغيل بعد أن يظهر الفيديو المطلوب في الصفحة.
-  useEffect(() => {
-    if (playRequest === 0) return;
-    void videoRef.current?.play().catch(() => undefined);
-  }, [playRequest]);
-
-  // إيقاف الفيديو عندما يبتعد الزائر عن القسم.
-  useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) videoRef.current?.pause();
-    });
-    io.observe(stage);
-    return () => io.disconnect();
-  }, []);
-
-  const item = videos[current];
-  if (!item) return null;
-  const product = productById(item.productId);
-  const added = product ? has(product.id) : false;
+  // فتح فيديو من قسم آخر (قائمة الأصناف أو العيّنات).
+  useSiteEvent<string>("ms:video", (id) => {
+    const i = videos.findIndex((v) => v.id === id);
+    if (i >= 0) setOpen(i);
+  });
 
   return (
-    <section className="sec sec-vid" id="videos">
+    <section className="sec sec-vid" id="videos" aria-labelledby="videos-title">
       <div className="wrap">
-        <div className="sec-head" data-reveal>
-          <span className="orn" aria-hidden="true" />
-          <h2 className="h2">الأصناف بالفيديو</h2>
-          <p className="lead">صوّرنا العيّنات في المعرض كما هي، وكل فيديو يعرض عدة تصاميم من الصنف نفسه. اختر الصنف وشاهده.</p>
+        <SecHead
+          id="videos-title"
+          kicker="جولة قصيرة"
+          title="من داخل المعرض"
+          lead="صوّرنا العيّنات في المعرض، وكل فيديو يمرّ على عدة تصاميم من الصنف نفسه. اضغط على الفيديو لتشاهده."
+        />
+
+        <ul className="reels" data-reveal>
+          {videos.map((v, i) => {
+            const p = productById(v.productId);
+            return (
+              <li key={v.id}>
+                <button type="button" className="reel" onClick={() => setOpen(i)} aria-label={`شاهد فيديو ${p ? productTitle(p) : "المعرض"}، مدته ${clock(v.seconds)}`}>
+                  <img src={v.poster} alt="" width={v.w} height={v.h} loading="lazy" decoding="async" />
+                  <span className="reel-time">{clock(v.seconds)}</span>
+                  <span className="reel-play" aria-hidden="true">
+                    <IconPlay />
+                  </span>
+                  <span className="reel-cap">
+                    <strong>{p ? `${productName(p)} ${originShort[p.origin]}` : "فيديو من المعرض"}</strong>
+                    <span>{p?.size}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {open !== null ? <VideoBox index={open} onClose={() => setOpen(null)} onNav={setOpen} /> : null}
+    </section>
+  );
+}
+
+function VideoBox({ index, onClose, onNav }: { index: number; onClose: () => void; onNav: (i: number) => void }) {
+  const { add, has } = useRequest();
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const v = videos[index];
+  const n = videos.length;
+  const product = productById(v.productId);
+  const set = product ? setForProduct(product.id) : undefined;
+  const added = product ? has(product.id) : false;
+  const usage = product ? (product.outdoor ? outdoorLabel : product.use ? useNames[product.use] : "") : "";
+
+  useEffect(() => {
+    const last = document.activeElement as HTMLElement | null;
+    document.documentElement.classList.add("no-scroll");
+    closeRef.current?.focus();
+    return () => {
+      document.documentElement.classList.remove("no-scroll");
+      last?.focus?.({ preventScroll: true });
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className="vb" role="dialog" aria-modal="true" aria-label={product ? `فيديو ${productTitle(product)}` : "فيديو من المعرض"} onClick={onClose}>
+      <div className={`vb-in ${v.h > v.w ? "is-tall" : "is-wide"}`} onClick={(e) => e.stopPropagation()}>
+        <div className="vb-video">
+          <video key={v.id} src={v.src} poster={v.poster} width={v.w} height={v.h} controls autoPlay muted loop playsInline />
         </div>
-
-        <div className="vid" data-reveal>
-          <div className={`vid-stage ${item.h > item.w ? "is-tall" : "is-wide"}`} ref={stageRef}>
-            <span className="vid-blur" style={{ backgroundImage: `url(${item.poster})` }} aria-hidden="true" />
-            <video
-              key={item.id}
-              ref={videoRef}
-              src={item.src}
-              poster={item.poster}
-              width={item.w}
-              height={item.h}
-              preload="none"
-              playsInline
-              muted
-              loop
-              controls={started}
-              aria-label={product ? `فيديو ${productName(product)} ${originShort[product.origin]} ${product.size ?? ""}` : "فيديو من المعرض"}
-            />
-            {!started ? (
-              <button type="button" className="vid-play" onClick={() => pick(current)} aria-label="تشغيل الفيديو">
-                <span>
-                  <IconPlay />
-                </span>
-              </button>
-            ) : null}
-          </div>
-
-          <div className="vid-side">
-            <div className="vid-list" role="group" aria-label="فيديوهات الأصناف">
-              {videos.map((v, i) => {
-                const p = productById(v.productId);
-                return (
-                  <button key={v.id} type="button" className={`vid-item ${i === current ? "is-on" : ""}`} aria-pressed={i === current} onClick={() => pick(i)}>
-                    <span className="sw" aria-hidden="true">
-                      <i style={{ backgroundImage: `url(${v.shots[0]})` }} />
-                    </span>
-                    <span className="vid-item-text">
-                      <strong>{p ? `${productName(p)} ${originShort[p.origin]}` : "فيديو"}</strong>
-                      <span>{p?.size}</span>
-                    </span>
-                    <span className="vid-item-time">
-                      <IconPlay /> {clock(v.seconds)}
-                    </span>
+        <div className="vb-info" key={`info-${v.id}`}>
+          {product ? (
+            <>
+              <span className="tag">{originNames[product.origin]}</span>
+              <h3>
+                {productName(product)} <span>{product.size}</span>
+              </h3>
+              {usage ? <p className="vb-use">{usage}</p> : null}
+              <p className="vb-note">الفيديو مصوَّر في المعرض ويمرّ على عدة تصاميم من هذا الصنف. التصاميم المتوفرة حالياً تجدها في المعرض.</p>
+              <div className="vb-actions">
+                <button type="button" className={`btn ${added ? "btn-done" : "btn-gold"}`} onClick={() => add(requestItem(product))}>
+                  {added ? <IconCheck /> : <IconPlus />} {added ? "في طلبك" : "أضف لطلبي"}
+                </button>
+                {isRect(product) ? (
+                  <button
+                    type="button"
+                    className="btn btn-on-navy"
+                    onClick={() => {
+                      onClose();
+                      openCalculator(product);
+                    }}
+                  >
+                    احسب الكمية
                   </button>
-                );
-              })}
-            </div>
-
-            {product ? (
-              <div className="vid-info" key={item.id}>
-                <span className="tag">{originNames[product.origin]}</span>
-                <h3>
-                  {productName(product)} <span>{product.size}</span>
-                </h3>
-                <p className="vid-use">{product.outdoor ? outdoorLabel : product.use ? useNames[product.use] : null}</p>
-                <div className="shots" role="img" aria-label={`${item.shots.length} تصاميم من هذا الفيديو`}>
-                  {item.shots.map((s) => (
-                    <span key={s} style={{ backgroundImage: `url(${s})` }} />
-                  ))}
-                </div>
-                <p className="vid-note">لقطات من الفيديو. التصاميم المتوفرة حالياً تجدها في المعرض.</p>
-                <div className="vid-actions">
-                  <button type="button" className={`btn ${added ? "btn-done" : "btn-primary"}`} onClick={() => add(requestItem(product))}>
-                    {added ? <IconCheck /> : <IconPlus />} {added ? "في طلبك" : "أضف لطلبي"}
+                ) : null}
+                {set ? (
+                  <button
+                    type="button"
+                    className="btn btn-on-navy"
+                    onClick={() => {
+                      onClose();
+                      showSamples(set.id);
+                    }}
+                  >
+                    <IconGrid /> صور العيّنات
                   </button>
-                  {isRect(product) ? (
-                    <button type="button" className="btn btn-ghost" onClick={() => openCalculator(product)}>
-                      احسب الكمية
-                    </button>
-                  ) : null}
-                </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
+            </>
+          ) : null}
+          {n > 1 ? (
+            <div className="vb-nav">
+              <button type="button" className="btn btn-sm btn-on-navy" onClick={() => onNav((index - 1 + n) % n)}>
+                <IconChevron dir="right" /> السابق
+              </button>
+              <span>
+                {index + 1} / {n}
+              </span>
+              <button type="button" className="btn btn-sm btn-on-navy" onClick={() => onNav((index + 1) % n)}>
+                التالي <IconChevron dir="left" />
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
-    </section>
+      <button ref={closeRef} type="button" className="icon-btn vb-close" onClick={onClose} aria-label="إغلاق الفيديو">
+        <IconClose />
+      </button>
+    </div>
   );
 }
