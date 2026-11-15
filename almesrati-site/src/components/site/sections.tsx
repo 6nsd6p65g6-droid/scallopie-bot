@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { branches, company, phoneLabel, phones, socials, telHref, waHref, workHours } from "../../site-data";
+import { branches, company, phoneLabel, phones, shopCoords, socials, telHref, waHref, workHours, type Phone, type WorkHours } from "../../site-data";
+import { formatClock, sunsetMinutes } from "./fx";
 import { SecHead } from "./head";
 import { IconArrow, IconCalc, IconChat, IconClock, IconGrid, IconHeart, IconHome, IconList, IconPhone, IconPin, IconStack } from "./icons";
 import { useRequest } from "./request";
@@ -43,7 +44,7 @@ function useActiveSection() {
 }
 
 // أول رقم عليه واتساب: للمحادثة السريعة من الشريط العلوي.
-const waPhone = [...phones, ...branches.flatMap((b) => b.phones)].find((p) => p.whatsapp);
+const waPhone = [...phones, ...branches.flatMap((b) => b.phones ?? [])].find((p) => p.whatsapp);
 const greeting = `مرحباً، أستفسر عن أصناف ${company.fullName}`;
 
 // الشريط العلوي: الشعار في الوسط والروابط على جانبيه. على الجوال يبقى الشعار والاسم وزر واتساب، والتنقل من الشريط السفلي.
@@ -171,11 +172,66 @@ export function Steps() {
   );
 }
 
+// حالة المعرض الآن حسب أوقات العمل بتوقيت ليبيا: يفتح 10 صباحاً ويغلق مع المغرب، والجمعة عطلة.
+function shopStatus(now: number, hours: WorkHours) {
+  const local = new Date(now + shopCoords.utcOffset * 3600 * 1000);
+  const day = local.getUTCDay();
+  const minutes = local.getUTCHours() * 60 + local.getUTCMinutes();
+  const sunset = sunsetMinutes(local, shopCoords.lat, shopCoords.lng, shopCoords.utcOffset);
+  if (sunset === null) return null;
+  const opens = hours.opensText;
+  if (day === hours.closedDay) return { open: false, text: `مغلق اليوم (الجمعة)، نفتح غداً ${opens}` };
+  if (minutes < hours.opensAt) return { open: false, text: `مغلق الآن، نفتح اليوم ${opens}` };
+  if (minutes < sunset) return { open: true, text: `مفتوح الآن حتى المغرب، نحو ${formatClock(sunset)}` };
+  const tomorrowClosed = (day + 1) % 7 === hours.closedDay;
+  return { open: false, text: tomorrowClosed ? `مغلق الآن، نفتح السبت ${opens}` : `مغلق الآن، نفتح غداً ${opens}` };
+}
+
+// تُحسب في المتصفح فقط وتتحدث كل دقيقة، لأن الصفحة الجاهزة لا تعرف ساعة الزائر.
+function useShopStatus() {
+  const [status, setStatus] = useState<{ open: boolean; text: string } | null>(null);
+  useEffect(() => {
+    if (!workHours) return;
+    const hours = workHours;
+    const update = () => setStatus(shopStatus(Date.now(), hours));
+    update();
+    const t = window.setInterval(update, 60000);
+    return () => window.clearInterval(t);
+  }, []);
+  return status;
+}
+
+function PhoneList({ list }: { list: Phone[] }) {
+  return (
+    <ul className="ct-phones">
+      {list.map((p) => (
+        <li key={p.number} className="ct-phone">
+          <span className="ct-num" dir="ltr">
+            {p.number}
+          </span>
+          <span className="ct-label">{phoneLabel(p)}</span>
+          <span className="ct-acts">
+            {p.whatsapp ? (
+              <a className="btn btn-sm btn-wa" href={waHref(p.number, greeting)} target="_blank" rel="noopener noreferrer" aria-label={`راسلنا على واتساب: ${p.number}`}>
+                <IconChat /> واتساب
+              </a>
+            ) : null}
+            <a className="btn btn-sm btn-primary" href={telHref(p.number)} aria-label={`اتصل بنا: ${p.number}`}>
+              <IconPhone /> اتصال
+            </a>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function Contact() {
+  const status = useShopStatus();
   const hasBranches = branches.length > 0;
   const hasData = hasBranches || phones.length > 0 || socials.length > 0;
   const lead = hasBranches
-    ? "زرنا لتعاين الأصناف بنفسك، أو راسلنا على واتساب، أو اتصل بنا مباشرة."
+    ? "زرنا في المعرض لتعاين الأصناف بنفسك، أو راسلنا على واتساب، أو اتصل بنا مباشرة."
     : hasData
       ? "راسلنا على واتساب أو اتصل بنا مباشرة، وتابع جديد الأصناف على صفحاتنا."
       : undefined;
@@ -185,118 +241,81 @@ export function Contact() {
       <div className="wrap">
         <SecHead kicker={hasBranches ? "نسعد بزيارتك" : "نسعد بتواصلك"} title="تواصل معنا" lead={lead} />
 
-        {hasBranches ? (
-          <div className="br-grid">
+        {hasData ? (
+          <div className="ct">
             {branches.map((b, bi) => (
-              <article key={b.id} className="br" data-reveal style={{ "--d": `${bi * 120}ms` } as CSSProperties}>
-                <h3>{b.name}</h3>
-                <p className="br-line">
-                  <IconPin /> <span>{b.address}</span>
-                </p>
-                {workHours ? (
-                  <p className="br-line">
-                    <IconClock />
-                    <span>
-                      {workHours.days}، {workHours.time}
-                      {workHours.closed ? <span className="br-off">{workHours.closed}</span> : null}
-                    </span>
+              <article key={b.id} className="ct-col ct-visit" data-reveal style={{ "--d": `${bi * 120}ms` } as CSSProperties}>
+                <h3>
+                  <IconPin /> {b.name}
+                </h3>
+                <dl className="ct-facts">
+                  <div>
+                    <dt>العنوان</dt>
+                    <dd>{b.address}</dd>
+                  </div>
+                  {workHours ? (
+                    <div>
+                      <dt>أوقات العمل</dt>
+                      <dd>
+                        {workHours.days}، {workHours.time}
+                        {workHours.closed ? <span className="ct-off">{workHours.closed}</span> : null}
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+                {status ? (
+                  <p className={`ct-status ${status.open ? "is-open" : ""}`}>
+                    <i aria-hidden="true" /> {status.text}
                   </p>
                 ) : null}
                 {b.mapUrl ? (
-                  <a className="btn btn-line btn-sm br-map" href={b.mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`موقع ${b.name} على خرائط Google`}>
-                    <IconPin /> افتح الموقع على الخريطة
+                  <a className="btn btn-primary ct-map" href={b.mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`موقع ${b.name} على خرائط Google`}>
+                    <IconPin /> افتح الموقع على خرائط Google
                   </a>
                 ) : null}
-                <ul className="br-phones">
-                  {b.phones.map((p) => (
-                    <li key={p.number}>
-                      <span className="br-name">{phoneLabel(p)}</span>
-                      <span className="br-number" dir="ltr">
-                        {p.number}
-                      </span>
-                      <span className="br-acts">
-                        {p.whatsapp ? (
-                          <a className="icon-btn icon-btn-wa" href={waHref(p.number, greeting)} target="_blank" rel="noopener noreferrer" aria-label={`واتساب ${p.number}`}>
-                            <IconChat />
-                          </a>
-                        ) : null}
-                        <a className="icon-btn icon-btn-call" href={telHref(p.number)} aria-label={`اتصال: ${p.number}`}>
-                          <IconPhone />
-                        </a>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                {b.phones?.length ? <PhoneList list={b.phones} /> : null}
               </article>
             ))}
-          </div>
-        ) : null}
 
-        {phones.length > 0 || socials.length > 0 ? (
-          <div className="ct">
-            {phones.length > 0 ? (
-              <div className="ct-col" data-reveal>
-                <h3>
-                  <IconPhone /> اتصل بنا
-                </h3>
-                <ul className="ct-phones">
-                  {phones.map((p) => (
-                    <li key={p.number} className="ct-phone">
-                      <span className="ct-num" dir="ltr">
-                        {p.number}
-                      </span>
-                      <span className="ct-label">{phoneLabel(p)}</span>
-                      <span className="ct-acts">
-                        {p.whatsapp ? (
-                          <a className="btn btn-sm btn-wa" href={waHref(p.number, greeting)} target="_blank" rel="noopener noreferrer" aria-label={`راسلنا على واتساب: ${p.number}`}>
-                            <IconChat /> واتساب
-                          </a>
-                        ) : null}
-                        <a className="btn btn-sm btn-primary" href={telHref(p.number)} aria-label={`اتصل بنا: ${p.number}`}>
-                          <IconPhone /> اتصال
+            {phones.length > 0 || socials.length > 0 ? (
+              <div className="ct-col" data-reveal style={{ "--d": "120ms" } as CSSProperties}>
+                {phones.length > 0 ? (
+                  <>
+                    <h3>
+                      <IconPhone /> اتصل بنا
+                    </h3>
+                    <PhoneList list={phones} />
+                  </>
+                ) : null}
+                {socials.length > 0 ? (
+                  <>
+                    <h3 className={phones.length > 0 ? "ct-sub" : undefined}>
+                      <IconHeart /> تابعنا
+                    </h3>
+                    <div className="ct-socs">
+                      {socials.map((so) => (
+                        <a key={so.url} href={so.url} target="_blank" rel="noopener noreferrer" className="soc">
+                          <span className="soc-platform">{so.platform}</span>
+                          <span className="soc-handle" dir={so.handle.startsWith("@") ? "ltr" : undefined}>
+                            {so.handle}
+                          </span>
+                          <span className="soc-go">
+                            <IconArrow />
+                          </span>
                         </a>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                {workHours ? (
-                  <p className="ct-hours">
-                    <IconClock /> {workHours.days}، {workHours.time}
-                    {workHours.closed ? `، ${workHours.closed}` : ""}
-                  </p>
+                      ))}
+                    </div>
+                  </>
                 ) : null}
               </div>
             ) : null}
-
-            {socials.length > 0 ? (
-              <div className="ct-col" data-reveal style={{ "--d": "120ms" } as CSSProperties}>
-                <h3>
-                  <IconHeart /> تابعنا
-                </h3>
-                <div className="ct-socs">
-                  {socials.map((so) => (
-                    <a key={so.url} href={so.url} target="_blank" rel="noopener noreferrer" className="soc">
-                      <span className="soc-platform">{so.platform}</span>
-                      <span className="soc-handle" dir={so.handle.startsWith("@") ? "ltr" : undefined}>
-                        {so.handle}
-                      </span>
-                      <span className="soc-go">
-                        <IconArrow />
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ) : null}
           </div>
-        ) : null}
-
-        {!hasData ? (
+        ) : (
           <div className="pending" data-reveal>
             <strong>بيانات التواصل تُضاف هنا</strong>
             <p>عناوين الفروع، أرقام الهاتف وواتساب، ساعات العمل، وصفحات التواصل الاجتماعي. يظهر هذا الجزء تلقائياً عند إضافتها.</p>
           </div>
-        ) : null}
+        )}
       </div>
     </section>
   );
@@ -311,6 +330,13 @@ export function Footer() {
           <strong>{company.name}</strong>
           <span>{company.descriptor}</span>
         </a>
+        {branches.length > 0 || workHours ? (
+          <p className="ft-info">
+            {branches.map((b) => b.address).join(" · ")}
+            {branches.length > 0 && workHours ? <br /> : null}
+            {workHours ? `${workHours.days}، ${workHours.time}` : null}
+          </p>
+        ) : null}
         <span className="orn orn-gold" aria-hidden="true" />
         <nav className="ft-links" aria-label="روابط الموقع">
           {allLinks.map((l) => (

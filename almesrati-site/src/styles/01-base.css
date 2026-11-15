@@ -266,20 +266,6 @@ p {
   background: transparent;
   color: var(--ink-2);
 }
-.icon-btn-wa {
-  background: #0f7f43;
-  color: #fff;
-}
-.icon-btn-wa:hover {
-  background: #0b6836;
-}
-.icon-btn-call {
-  background: var(--navy);
-  color: #fff;
-}
-.icon-btn-call:hover {
-  background: var(--navy-deep);
-}
 .badge {
   display: grid;
   place-items: center;

@@ -22,13 +22,32 @@ export const phones: Phone[] = [{ number: "0928106906", whatsapp: true }, { numb
 // وصف الرقم عندما لا يُعرف اسم الموظف.
 export const phoneLabel = (p: Phone) => p.name ?? (p.whatsapp ? "اتصال وواتساب" : "اتصال ورسائل");
 
-// الفروع: بانتظار العناوين وروابط الخرائط. عند إضافتها تظهر بطاقات الفروع ويُختار الفرع في قائمة الطلب.
-export type Branch = { id: string; name: string; address: string; phones: Phone[]; mapUrl?: string };
-export const branches: Branch[] = [];
+// الفروع كما أرسلها المالك: فرع واحد في تاجوراء، سبان. أرقامه هي أرقام الشركة أعلاه، ويُضاف للفرع رقم خاص عند الحاجة.
+// تأكدنا أن رابط الخريطة يفتح «محل المصراتي للسيراميك والبورسلين، تاجوراء».
+export type Branch = { id: string; name: string; address: string; mapUrl?: string; phones?: Phone[] };
+export const branches: Branch[] = [
+  { id: "tajoura", name: "فرع تاجوراء", address: "تاجوراء، سبان", mapUrl: "https://maps.app.goo.gl/TtLsjuZT7ZqKaPyy9" },
+];
 
-// مثال: { days: "من السبت إلى الخميس", time: "من 10 صباحاً حتى المغرب", closed: "الجمعة عطلة" }
-export type WorkHours = { days: string; time: string; closed?: string };
-export const workHours: WorkHours | null = null;
+// أوقات العمل كما أرسلها المالك: كل يوم ما عدا الجمعة، من 10 صباحاً حتى المغرب.
+export type WorkHours = {
+  days: string;
+  time: string;
+  closed?: string;
+  opensAt: number; // بالدقائق من منتصف الليل بتوقيت ليبيا
+  opensText: string;
+  closedDay: number; // يوم العطلة (الأحد = 0)
+};
+export const workHours: WorkHours | null = {
+  days: "من السبت إلى الخميس",
+  time: "من 10 صباحاً حتى المغرب",
+  closed: "الجمعة عطلة",
+  opensAt: 10 * 60,
+  opensText: "10 صباحاً",
+  closedDay: 5,
+};
+// موقع تاجوراء، لحساب وقت المغرب في حالة «مفتوح الآن». ليبيا على توقيت +2 طوال السنة.
+export const shopCoords = { lat: 32.882, lng: 13.35, utcOffset: 2 };
 
 // يحول الرقم المحلي إلى صيغة دولية: 0924035518 تصبح 218924035518
 export const intlNumber = (phone: string) => `218${phone.replace(/\D/g, "").replace(/^0/, "")}`;

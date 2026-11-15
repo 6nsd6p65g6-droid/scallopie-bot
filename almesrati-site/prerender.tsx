@@ -19,13 +19,20 @@ const jsonLd = JSON.stringify({
   description,
   ...(socials.length ? { sameAs: socials.map((s) => s.url) } : {}),
   ...(phones.length ? { telephone: phones.map((p) => `+${intlNumber(p.number)}`) } : {}),
-  ...(branches.length
+  // فرع واحد: عنوانه عنوان الشركة. أكثر من فرع: كل فرع قسم مستقل.
+  ...(branches.length === 1
+    ? {
+        address: { "@type": "PostalAddress", streetAddress: branches[0].address, addressCountry: "LY" },
+        ...(branches[0].mapUrl ? { hasMap: branches[0].mapUrl } : {}),
+      }
+    : {}),
+  ...(branches.length > 1
     ? {
         department: branches.map((b) => ({
           "@type": "HomeGoodsStore",
           name: `${company.fullName}، ${b.name}`,
           address: { "@type": "PostalAddress", streetAddress: b.address, addressCountry: "LY" },
-          ...(b.phones.length ? { telephone: b.phones.map((p) => `+${intlNumber(p.number)}`) } : {}),
+          ...(b.phones?.length ? { telephone: b.phones.map((p) => `+${intlNumber(p.number)}`) } : {}),
           ...(b.mapUrl ? { hasMap: b.mapUrl } : {}),
         })),
       }

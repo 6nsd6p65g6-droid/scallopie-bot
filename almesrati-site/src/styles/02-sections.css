@@ -1175,78 +1175,6 @@
   font-size: 1.25rem;
   color: var(--navy);
 }
-.br-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.2rem;
-}
-.br {
-  display: grid;
-  align-content: start;
-  gap: 0.7rem;
-  padding: 1.4rem;
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--gold);
-  border-radius: var(--r);
-  background: var(--ivory);
-}
-.br h3 {
-  font-size: 1.4rem;
-  color: var(--navy);
-}
-.br-line {
-  display: flex;
-  gap: 0.6rem;
-}
-.br-line svg {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  margin-top: 0.35rem;
-  color: var(--gold-deep);
-}
-.br-off {
-  display: block;
-  color: var(--ink-2);
-  font-size: 0.92rem;
-}
-.br-map {
-  justify-self: start;
-}
-.br-phones {
-  display: grid;
-  gap: 0.4rem;
-  margin: 0.3rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-.br-phones li {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.45rem 0.7rem;
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  background: var(--paper);
-}
-.br-name {
-  font-weight: 700;
-}
-.br-number {
-  color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
-}
-.br-acts {
-  display: flex;
-  gap: 0.35rem;
-}
-.soc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.8rem;
-  margin-top: 1.4rem;
-}
 .soc {
   position: relative;
   display: grid;
@@ -1295,9 +1223,6 @@
   gap: 1.4rem;
   max-width: 1000px;
   margin: 1.4rem auto 0;
-}
-.br-grid + .ct {
-  margin-top: 1.4rem;
 }
 .ct-col {
   display: grid;
@@ -1376,6 +1301,78 @@
   display: grid;
   gap: 0.6rem;
 }
+.ct-sub {
+  margin-top: 0.6rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line-2);
+}
+/* بطاقة الفرع: خلفية بخطوط بلاط خفيفة */
+.ct-visit {
+  background-color: var(--ivory);
+  background-image:
+    linear-gradient(rgba(186, 148, 92, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(186, 148, 92, 0.12) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+.ct-facts {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+}
+.ct-facts > div {
+  padding: 0.7rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+}
+.ct-facts dt {
+  color: var(--gold-ink);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+.ct-facts dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.ct-off {
+  display: block;
+  color: var(--ink-2);
+  font-size: 0.92rem;
+  font-weight: 400;
+}
+.ct-status {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.5rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: var(--ivory-2);
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: rise 0.5s var(--ease);
+}
+.ct-status i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9aa7b8;
+}
+.ct-status.is-open {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.ct-status.is-open i {
+  background: #22a35a;
+  animation: live-dot 2s ease-out infinite;
+}
+.ct-map {
+  justify-self: stretch;
+}
 @media (max-width: 479px) {
   .ct-phone {
     grid-template-columns: 1fr;
@@ -1434,6 +1431,11 @@
 }
 .ft-links a:hover {
   color: var(--gold-light);
+}
+.ft-info {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.93rem;
+  line-height: 1.7;
 }
 .ft-copy {
   color: rgba(255, 255, 255, 0.62);

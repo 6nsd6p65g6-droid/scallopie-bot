@@ -155,7 +155,7 @@ export function RequestDrawer() {
   const lastFocus = useRef<HTMLElement | null>(null);
   const branch: Branch | undefined = branches.find((b) => b.id === branchId) ?? branches[0];
   const text = requestText(items, notes, branch?.name);
-  const contacts = branch ? branch.phones : phones;
+  const contacts = branch?.phones?.length ? branch.phones : phones;
 
   useEffect(() => {
     if (open) {
