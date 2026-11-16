@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import {
   designLabel,
-  designsOf,
+  designsForProduct,
   finishOrder,
   isRect,
   kinds,
@@ -223,8 +223,7 @@ function Chip({ on, onClick, label, n }: { on: boolean; onClick: () => void; lab
 
 // عيّنة الصنف: صورة حقيقية من تصاميمه إن وُجدت، وإلا شكل البلاطة مرسوماً بنسبة مقاسها (120 سم = 34 بكسل).
 export function Swatch({ product: p }: { product: Product }) {
-  const set = setForProduct(p.id);
-  const photo = set ? designsOf(set.id)[0]?.tiny : undefined;
+  const photo = designsForProduct(p.id)[0]?.tiny;
   if (photo)
     return (
       <span className="sw sw-photo" aria-hidden="true">
@@ -244,7 +243,7 @@ function Row({ product: p, open, onToggle }: { product: Product; open: boolean; 
   const added = has(p.id);
   const video = videoForProduct(p.id);
   const set = setForProduct(p.id);
-  const samples = set ? designsOf(set.id) : [];
+  const samples = designsForProduct(p.id);
   const usage = usageOf(p);
   const panelId = `row-${p.id}`;
 
@@ -261,7 +260,7 @@ function Row({ product: p, open, onToggle }: { product: Product; open: boolean; 
             {usage ? <span>{usage}</span> : null}
             {samples.length > 0 ? (
               <span className="row-tag">
-                <IconGrid /> {samples.length} صور
+                <IconGrid /> {samples.length === 1 ? "صورة" : samples.length === 2 ? "صورتان" : samples.length <= 10 ? `${samples.length} صور` : `${samples.length} صورة`}
               </span>
             ) : null}
             {video ? (
