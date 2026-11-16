@@ -4,6 +4,7 @@ import { Catalog } from "./components/site/catalog";
 import { setupReveal } from "./components/site/fx";
 import { Hero } from "./components/site/hero";
 import { Looks } from "./components/site/looks";
+import { NewArrivals } from "./components/site/news";
 import { RequestDrawer, RequestProvider } from "./components/site/request";
 import { Samples } from "./components/site/samples";
 import { Contact, Footer, Header, Steps, TabBar } from "./components/site/sections";
@@ -24,6 +25,7 @@ export function App() {
         <Header />
         <main>
           <Hero />
+          <NewArrivals />
           <Looks />
           <Samples />
           <Videos />
