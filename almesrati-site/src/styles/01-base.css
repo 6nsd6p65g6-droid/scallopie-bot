@@ -1013,3 +1013,14 @@ p {
     padding: 0.85rem 0.5rem 0.95rem;
   }
 }
+
+/* علامة «جديد» على تبويب الصنف */
+.pill-new {
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--navy-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.6;
+}

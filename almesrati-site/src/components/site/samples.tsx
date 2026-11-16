@@ -64,6 +64,7 @@ export function Samples() {
         <div className="smp-tabs" role="group" aria-label="اختر الصنف" data-reveal>
           {designSets.map((s) => (
             <button key={s.id} type="button" className={`pill ${s.id === set.id ? "is-on" : ""}`} aria-pressed={s.id === set.id} onClick={() => setSetId(s.id)}>
+              {s.isNew ? <span className="pill-new">جديد</span> : null}
               {s.label}
               <span className="pill-n">{s.looks.length}</span>
             </button>
