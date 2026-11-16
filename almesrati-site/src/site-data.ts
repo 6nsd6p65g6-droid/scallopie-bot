@@ -186,6 +186,7 @@ export type DesignSet = {
   shape: SetShape; // نسبة الصورة: لوح 60×120، مربع، أو حائطي مع ديكوره
   note?: string;
   looks: string[]; // وصف كل تصميم بترتيب صوره
+  codes?: (string | undefined)[]; // كود التصميم كما أكده المالك، بنفس ترتيب الصور
 };
 export const designSets: DesignSet[] = [
   {
@@ -206,7 +207,17 @@ export const designSets: DesignSet[] = [
       "بني داكن بعروق فاتحة",
       "رمادي داكن بعروق",
       "بني فاتح",
+      "ترافنتينو بيج فاتح",
     ],
+  },
+  {
+    id: "ly120",
+    productId: "ly-porcelain-120x60",
+    label: "بورسلين ليبي 120×60",
+    shape: "slab",
+    note: "الترافنتينو يُركّب في الحمامات والمطابخ وحيطان الديكور.",
+    looks: ["ترافنتينو رمادي"],
+    codes: ["273"],
   },
   {
     id: "p80",
@@ -238,6 +249,7 @@ export type Design = {
   productId: string;
   n: number; // رقم التصميم داخل مجموعته
   look: string;
+  code?: string;
   image: string; // الصورة الكبيرة
   thumb: string; // صورة البطاقة
   tiny: string; // صورة صغيرة لجدار الواجهة والقوائم
@@ -245,14 +257,14 @@ export type Design = {
 export const designs: Design[] = designSets.flatMap((s) =>
   s.looks.map((look, i) => {
     const id = `${s.id}-${String(i + 1).padStart(2, "0")}`;
-    return { id, setId: s.id, productId: s.productId, n: i + 1, look, image: `designs/${id}.jpg`, thumb: `designs/${id}-t.jpg`, tiny: `designs/${id}-w.jpg` };
+    return { id, setId: s.id, productId: s.productId, n: i + 1, look, code: s.codes?.[i], image: `designs/${id}.jpg`, thumb: `designs/${id}-t.jpg`, tiny: `designs/${id}-w.jpg` };
   }),
 );
 export const designById = (id: string) => designs.find((d) => d.id === id);
 export const setById = (id: string) => designSets.find((s) => s.id === id);
 export const setForProduct = (productId: string) => designSets.find((s) => s.productId === productId);
 export const designsOf = (setId: string) => designs.filter((d) => d.setId === setId);
-export const designLabel = (d: Design) => `تصميم ${d.n}`;
+export const designLabel = (d: Design) => (d.code ? `كود ${d.code}` : `تصميم ${d.n}`);
 
 // ---------- تصاميم البيوت والحمامات ----------
 // صور توضيحية صُمّمت بالحاسوب: كل صورة تُظهر أحد تصاميمنا الحقيقية بعد التركيب.
