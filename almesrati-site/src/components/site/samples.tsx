@@ -39,7 +39,13 @@ export function Samples() {
     const d = designById(id);
     if (!d) return;
     setSetId(d.setId);
-    setOpen(d.n - 1);
+    const inSet = designsOf(d.setId);
+    let i = 0;
+    for (const x of inSet) {
+      if (x.id === d.id) break;
+      i += 1 + x.more.length;
+    }
+    setOpen(i);
   });
 
   const set = setById(setId) ?? designSets[0];
@@ -47,7 +53,10 @@ export function Samples() {
   const product = productById(set.productId);
   const video = product ? videoForProduct(product.id) : undefined;
   const usage = product ? (product.outdoor ? outdoorLabel : product.use ? useNames[product.use] : "") : "";
-  const current = open !== null ? list[open] : undefined;
+  // كل صور المجموعة بالترتيب، والقطع الإضافية لنفس الكود بعد صورتها الأولى.
+  const slides = list.flatMap((d) => [{ d, image: d.image, piece: 0 }, ...d.more.map((m, k) => ({ d, image: m.image, piece: k + 1 }))]);
+  const slideOf = (designIndex: number) => Math.max(0, slides.findIndex((x) => x.d.id === list[designIndex]?.id));
+  const current = open !== null ? slides[open]?.d : undefined;
   const currentItem = current ? designRequestItem(current) : null;
   const currentAdded = currentItem ? has(currentItem.key) : false;
 
@@ -102,8 +111,9 @@ export function Samples() {
             const added = has(item.key);
             return (
               <li key={d.id} className="smp" style={{ animationDelay: `${Math.min(i, 11) * 45}ms` }}>
-                <button type="button" className="smp-pic" onClick={() => setOpen(i)} aria-label={`تكبير ${designLabel(d)}: ${d.look}`}>
+                <button type="button" className="smp-pic" onClick={() => setOpen(slideOf(i))} aria-label={`تكبير ${designLabel(d)}: ${d.look}`}>
                   <img src={d.thumb} alt="" loading="lazy" decoding="async" />
+                  {d.more.length ? <span className="smp-more">{d.more.length === 1 ? "صورتان" : `${d.more.length + 1} صور`}</span> : null}
                   <span className="smp-zoom" aria-hidden="true">
                     <IconZoom />
                   </span>
@@ -135,11 +145,11 @@ export function Samples() {
 
       {open !== null && current && product ? (
         <Lightbox
-          items={list.map((d) => ({
-            image: d.image,
-            alt: `صورة حقيقية: ${productTitle(product)}، ${designLabel(d)}، ${d.look}`,
+          items={slides.map(({ d, image, piece }) => ({
+            image,
+            alt: `صورة حقيقية: ${productTitle(product)}، ${designLabel(d)}، ${d.look}${piece ? "، قطعة ثانية" : ""}`,
             caption: `${productTitle(product)}، ${designLabel(d)}`,
-            note: d.look,
+            note: piece ? `${d.look} (قطعة ثانية من نفس الكود)` : d.look,
           }))}
           index={open}
           onClose={() => setOpen(null)}
