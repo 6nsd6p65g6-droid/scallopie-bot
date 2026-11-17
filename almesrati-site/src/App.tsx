@@ -3,6 +3,7 @@ import { Calculator } from "./components/site/calculator";
 import { Catalog } from "./components/site/catalog";
 import { setupReveal } from "./components/site/fx";
 import { Hero } from "./components/site/hero";
+import { Ideas } from "./components/site/ideas";
 import { Looks } from "./components/site/looks";
 import { NewArrivals } from "./components/site/news";
 import { RequestDrawer, RequestProvider } from "./components/site/request";
@@ -27,6 +28,7 @@ export function App() {
           <Hero />
           <NewArrivals />
           <Looks />
+          <Ideas />
           <Samples />
           <Videos />
           <Catalog />
