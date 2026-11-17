@@ -6,6 +6,7 @@ import { setupReveal } from "./components/site/fx";
 import { Hero } from "./components/site/hero";
 import { Ideas } from "./components/site/ideas";
 import { Looks } from "./components/site/looks";
+import { ModernSurface } from "./components/site/modern/ModernSurface";
 import { NewArrivals } from "./components/site/news";
 import { RequestDrawer, RequestProvider } from "./components/site/request";
 import { Samples } from "./components/site/samples";
@@ -28,6 +29,7 @@ export function App() {
         <main>
           <Hero />
           <NewArrivals />
+          <ModernSurface />
           <Deck />
           <Looks />
           <Ideas />
