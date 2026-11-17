@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Calculator } from "./components/site/calculator";
 import { Catalog } from "./components/site/catalog";
+import { Deck } from "./components/site/deck";
 import { setupReveal } from "./components/site/fx";
 import { Hero } from "./components/site/hero";
 import { Ideas } from "./components/site/ideas";
@@ -27,6 +28,7 @@ export function App() {
         <main>
           <Hero />
           <NewArrivals />
+          <Deck />
           <Looks />
           <Ideas />
           <Samples />

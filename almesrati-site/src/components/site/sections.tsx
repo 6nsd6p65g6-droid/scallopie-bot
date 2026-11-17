@@ -16,7 +16,7 @@ const navEnd = [
   { id: "calculator", label: "الحاسبة" },
   { id: "contact", label: "تواصل معنا" },
 ];
-const allLinks = [...navStart, { id: "ideas", label: "أفكار لمساحتك" }, ...navEnd];
+const allLinks = [...navStart, { id: "discover", label: "اكتشف ذوقك" }, { id: "ideas", label: "أفكار لمساحتك" }, ...navEnd];
 const sectionIds = ["looks", "ideas", "samples", "videos", "catalog", "calculator", "steps", "contact"];
 
 // القسم الظاهر الآن في منتصف الشاشة، لتمييز رابطه.
