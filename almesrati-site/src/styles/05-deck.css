@@ -1,0 +1,357 @@
+/* اكتشف ذوقك: بطاقات تُسحب يميناً ويساراً */
+.sec-dk {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(60% 80% at 85% 20%, rgba(186, 148, 92, 0.22), transparent 60%),
+    radial-gradient(50% 70% at 10% 90%, rgba(31, 61, 96, 0.9), transparent 70%),
+    var(--navy-deep);
+  color: var(--ivory);
+}
+.dk-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+.dk-kicker {
+  display: inline-block;
+  margin: 0 0 0.8rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(220, 192, 142, 0.5);
+  border-radius: 999px;
+  color: var(--gold-light);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.dk-intro h2 {
+  margin: 0 0 0.8rem;
+  color: #fff;
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.2vw, 3.2rem);
+  line-height: 1.2;
+}
+.dk-lead {
+  max-width: 46ch;
+  margin: 0 0 1.4rem;
+  color: rgba(248, 244, 236, 0.82);
+  font-size: 1.05rem;
+  line-height: 1.85;
+}
+.dk-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.4rem;
+}
+.dk-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid rgba(248, 244, 236, 0.25);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ivory);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.dk-filters button span {
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: rgba(248, 244, 236, 0.14);
+  font-size: 0.75rem;
+}
+.dk-filters button:hover {
+  border-color: var(--gold-light);
+}
+.dk-filters button.is-on {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--navy-deep);
+  font-weight: 700;
+}
+.dk-filters button.is-on span {
+  background: rgba(11, 31, 51, 0.15);
+}
+.dk-filters button:focus-visible,
+.dk-tray button:focus-visible,
+.dk-btn:focus-visible,
+.dk-deck:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+.dk-tray {
+  padding: 1rem 1.1rem;
+  border: 1px dashed rgba(220, 192, 142, 0.45);
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.04);
+}
+.dk-tray > p {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--gold-light);
+  font-weight: 700;
+}
+.dk-tray > p svg {
+  width: 18px;
+  height: 18px;
+}
+.dk-tray ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.8rem 0 0.9rem;
+  padding: 0;
+}
+.dk-tray li button {
+  position: relative;
+  display: block;
+  width: 54px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  animation: dk-pop 0.35s var(--ease);
+}
+.dk-tray li img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.dk-tray li span {
+  display: block;
+  overflow: hidden;
+  padding: 1px 2px;
+  color: var(--navy);
+  font-size: 0.62rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+@keyframes dk-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+
+.dk-stage {
+  display: grid;
+  justify-items: center;
+}
+.dk-deck {
+  position: relative;
+  width: min(340px, 82vw);
+  aspect-ratio: 4 / 5.3;
+  border-radius: 6px;
+}
+.dk-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 0;
+  border-radius: 6px;
+  background: #fffdf8;
+  color: var(--ink);
+  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.7);
+}
+.dk-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.dk-back1,
+.dk-back2 {
+  padding-bottom: 72px;
+}
+.dk-back2 {
+  transform: rotate(-6deg) translateY(10px) scale(0.92);
+  opacity: 0.55;
+}
+.dk-back1 {
+  transform: rotate(4deg) translateY(6px) scale(0.96);
+  opacity: 0.85;
+  transition:
+    transform 0.3s var(--ease),
+    opacity 0.3s;
+}
+.dk-back1.is-rise {
+  transform: rotate(1.5deg) scale(0.99);
+  opacity: 1;
+}
+.dk-top {
+  z-index: 2;
+  cursor: grab;
+  touch-action: pan-y;
+  transition:
+    transform 0.26s var(--ease),
+    opacity 0.26s;
+  animation: dk-in 0.4s var(--ease);
+}
+.dk-top:active {
+  cursor: grabbing;
+}
+@keyframes dk-in {
+  from {
+    transform: scale(0.95);
+  }
+}
+.dk-pic {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--ivory-2);
+}
+.dk-stamp {
+  position: absolute;
+  top: 18px;
+  padding: 0.3rem 0.8rem;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: rgba(255, 253, 248, 0.85);
+  pointer-events: none;
+}
+.dk-yes {
+  inset-inline-start: 14px;
+  color: #1f6b41;
+  transform: rotate(-12deg);
+}
+.dk-no {
+  inset-inline-end: 14px;
+  color: #a33a2b;
+  transform: rotate(12deg);
+}
+.dk-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-height: 72px;
+  padding: 0.55rem 0.2rem 0.7rem;
+  line-height: 1.35;
+}
+.dk-info strong {
+  color: var(--navy);
+  font-family: var(--display);
+  font-size: 1.25rem;
+}
+.dk-info span {
+  overflow: hidden;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.dk-info small {
+  color: var(--ink-2);
+  font-size: 0.78rem;
+}
+.dk-done {
+  z-index: 2;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1.6rem;
+  text-align: center;
+}
+.dk-done p {
+  margin: 0;
+  color: var(--ink-2);
+  line-height: 1.8;
+}
+.dk-done .dk-done-title {
+  color: var(--navy);
+  font-family: var(--display);
+  font-size: 1.6rem;
+}
+.dk-done .btn {
+  align-self: center;
+}
+.dk-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.6rem;
+}
+.dk-btn {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    transform 0.2s var(--ease),
+    opacity 0.2s;
+}
+.dk-btn svg {
+  width: 26px;
+  height: 26px;
+}
+.dk-btn:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.05);
+}
+.dk-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.dk-btn-undo {
+  width: 46px;
+  height: 46px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--ivory);
+}
+.dk-btn-no {
+  background: var(--ivory);
+  color: #a33a2b;
+}
+.dk-btn-yes {
+  background: var(--gold);
+  color: var(--navy-deep);
+}
+.dk-btn-yes svg {
+  fill: currentColor;
+}
+.dk-count {
+  margin: 0.8rem 0 0;
+  color: rgba(248, 244, 236, 0.65);
+  font-size: 0.85rem;
+}
+.dk-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (max-width: 860px) {
+  .dk-wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dk-top,
+  .dk-back1,
+  .dk-tray li button {
+    animation: none;
+    transition: none;
+  }
+}

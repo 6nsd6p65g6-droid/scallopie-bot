@@ -1,0 +1,241 @@
+/* أفكار لمساحتك: لوحات مرسومة من صور البلاط الحقيقية */
+.ib {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: #cfc8bb;
+}
+.ib i {
+  display: block;
+  background-size: cover;
+  background-position: center;
+}
+.ib .t0 {
+  background-image: var(--ta);
+}
+.ib .t1 {
+  background-image: var(--tb);
+}
+.ib-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 2px;
+  padding: 2px;
+}
+.ib-grid .r1 {
+  transform: rotate(90deg);
+}
+.ib-grid .r2 {
+  transform: rotate(180deg);
+}
+.ib-grid .r3 {
+  transform: rotate(270deg);
+}
+.ib::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.2), transparent 45%, rgba(0, 0, 0, 0.14));
+}
+.ib-room {
+  display: grid;
+  grid-template-rows: 60% 40%;
+  background: #d9d2c4;
+}
+.ib-wall {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 2px;
+  padding: 2px 2px 0;
+}
+.ib-floor {
+  position: relative;
+  overflow: hidden;
+  background: #cfc8bb;
+}
+.ib-floor::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 10px;
+  background: linear-gradient(rgba(0, 0, 0, 0.32), transparent);
+}
+.ib-plane {
+  position: absolute;
+  inset: 0 -40% auto;
+  height: 240%;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  transform-origin: 50% 0;
+  transform: perspective(420px) rotateX(60deg);
+}
+
+.sec-ideas {
+  background: var(--ivory);
+  border-top: 1px solid var(--line);
+}
+.id-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4rem;
+}
+.id-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+}
+.id-card .ib {
+  border-bottom: 1px solid var(--line);
+}
+.id-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.1rem 1.2rem 1.3rem;
+}
+.id-place {
+  margin: 0;
+  color: var(--gold-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.id-body h3 {
+  margin: 0;
+  color: var(--navy);
+  font-family: var(--display);
+  font-size: 1.25rem;
+}
+.id-text {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+.id-tiles {
+  list-style: none;
+  margin: auto 0 0.35rem;
+  padding: 0.35rem 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.id-tile {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: zoom-in;
+  transition: border-color 0.25s;
+}
+.id-tile:hover {
+  border-color: var(--gold);
+}
+.id-tile:focus-visible {
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 2px;
+}
+.id-pic {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--ivory-2);
+}
+.id-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.id-pic i {
+  position: absolute;
+  inset-inline-end: 3px;
+  bottom: 3px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 253, 248, 0.92);
+  color: var(--navy);
+}
+.id-pic i svg {
+  width: 12px;
+  height: 12px;
+}
+.id-tile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+.id-tile-text em {
+  color: var(--gold-ink);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 700;
+}
+.id-tile-text strong {
+  color: var(--navy);
+  font-size: 0.95rem;
+}
+.id-tile-text span {
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.id-card .btn {
+  align-self: flex-start;
+}
+.id-note {
+  max-width: 72ch;
+  margin: 1.4rem 0 0;
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+@media (max-width: 1080px) {
+  .id-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 680px) {
+  .id-list {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 86%;
+    gap: 0.9rem;
+    margin-inline: -1.25rem;
+    padding: 0 1.25rem 0.8rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1.25rem;
+  }
+  .id-card {
+    scroll-snap-align: start;
+  }
+}
